@@ -235,12 +235,7 @@ function handlePaste(e) {
     for (const item of items) { if (item.type.startsWith('image/')) { const f = item.getAsFile(); if (f) imageFiles.push(f); } }
     if (imageFiles.length > 0) {
         e.preventDefault();
-        // If direct post panel is open, add to dpImages instead
-        if (directPostOverlay.classList.contains('active')) {
-            addDpImagesToAttachment(imageFiles);
-        } else {
-            addImagesToAttachment(imageFiles);
-        }
+        addImagesToAttachment(imageFiles);
         showToast(`📋 ${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''} pasted`, 'info');
     }
 }
