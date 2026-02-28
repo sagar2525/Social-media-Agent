@@ -125,7 +125,29 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadSocialLinks() {
     try {
         const res = await fetch('/data.json');
-        if (res.ok) socialLinks = await res.json();
+        if (res.ok) {
+            socialLinks = await res.json();
+
+            // Map the brand header social icons correctly
+            const mapLink = (id, key) => {
+                const el = document.getElementById(id);
+                console.log(`Mapping ${key} to #${id}: found=${!!el}`);
+                if (el && socialLinks[key]) {
+                    let url = socialLinks[key];
+                    if (!url.startsWith('http')) url = 'https://' + url;
+                    el.href = url;
+                    console.log(`Mapped ${key} to ${url}`);
+                } else if (el) {
+                    console.log(`Hiding ${key} (not in data.json)`);
+                    el.style.display = 'none'; // hide if not in data.json
+                }
+            };
+
+            mapLink('brandLinkX', 'X');
+            mapLink('brandLinkLn', 'Linkedin');
+            mapLink('brandLinkIg', 'Instagram');
+            mapLink('brandLinkYt', 'youtube');
+        }
     } catch (e) { console.warn('Could not load social links:', e); }
 }
 

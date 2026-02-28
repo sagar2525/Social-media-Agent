@@ -56,12 +56,12 @@ body {
 .app {
     position: relative;
     width: 100vw;
-    min-height: 100vh;
+    height: 100vh;
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 20px;
 }
 
@@ -169,6 +169,11 @@ body {
     gap: 12px;
 }
 
+.brand-socials-vertical {
+    flex-direction: column;
+    gap: 16px;
+}
+
 .brand-social-link {
     display: flex;
     align-items: center;
@@ -200,12 +205,38 @@ body {
     background: #0077b5;
 }
 
-.brand-dc {
-    background: #5865F2;
+.brand-ig {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
 }
 
 .brand-yt {
     background: #FF0000;
+}
+
+/* ========================================
+   Main Layout Container
+   ======================================== */
+.main-layout {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 860px;
+    /* 780px chat + 60px icons + 20px gap */
+    flex: 1;
+    min-height: 0;
+}
+
+.social-side-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    position: relative;
+    z-index: 10;
 }
 
 /* ========================================
@@ -214,10 +245,9 @@ body {
 .chat-container {
     position: relative;
     z-index: 1;
-    width: 100%;
-    max-width: 780px;
     flex: 1;
     min-height: 0;
+    height: 100%;
     max-height: 920px;
     display: flex;
     flex-direction: column;
@@ -241,6 +271,7 @@ body {
     background: rgba(255, 255, 255, 0.015);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+    position: relative;
 }
 
 .header-left {
@@ -1901,7 +1932,30 @@ body {
 /* ========================================
    Responsive
    ======================================== */
+@media (max-width: 860px) {
+    .main-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .social-side-panel {
+        flex-direction: row;
+        width: 100%;
+        padding: 0;
+    }
+
+    .brand-socials-vertical {
+        flex-direction: row;
+        gap: 12px;
+    }
+}
+
 @media (max-width: 500px) {
+    .header-center {
+        display: none;
+    }
+
     .chat-header {
         padding: 10px 12px;
     }
