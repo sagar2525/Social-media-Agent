@@ -149,8 +149,7 @@ function readBody(req, callback) {
 }
 
 // ── Create Server ──
-const server = http.createServer((req, res) => {
-
+const requestHandler = (req, res) => {
     // ── Webhook1: Chat / Generate Post ──
     if (req.method === 'POST' && req.url === '/api/chat') {
         readBody(req, (err, body) => {
@@ -224,7 +223,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // ── Serve static files ──
+    // ── Serve static files (For Local Dev) ──
     let filePath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
     filePath = path.join(__dirname, filePath);
 
@@ -245,8 +244,13 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(content);
     });
-});
+};
 
-server.listen(PORT, () => {
-    console.log(`\n  🤖 Social Post Creator running at http://localhost:${PORT}\n`);
-});
+if (require.main === module) {
+    const server = http.createServer(requestHandler);
+    server.listen(PORT, () => {
+        console.log(`\n  🤖 Social Post Creator running at http://localhost:${PORT}\n`);
+    });
+} else {
+    module.exports = requestHandler;
+}

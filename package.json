@@ -1,0 +1,12 @@
+{
+    "name": "n8n-social-post-creator",
+    "version": "1.0.0",
+    "description": "AI Social Post Creator",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "engines": {
+        "node": ">=18.x"
+    }
+}
