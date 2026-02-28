@@ -611,7 +611,17 @@ function loadHistory() {
         chatMessages.appendChild(el);
     }
 
-    if (lastBotMsg) { latestBotResponse = lastBotMsg; showConfirmButton(); }
+    const isSuccess = lastBotMsg.includes('Post published successfully');
+    const isError = lastBotMsg.includes("couldn't reach the server") || lastBotMsg.includes('Failed to publish');
+
+    if (lastBotMsg && !isSuccess && !isError) {
+        latestBotResponse = lastBotMsg;
+        showConfirmButton();
+        setStatus('Online • Ready to refine');
+    } else {
+        latestBotResponse = '';
+    }
+
     scrollToBottom();
 }
 
