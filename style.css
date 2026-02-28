@@ -216,7 +216,8 @@ body {
     z-index: 1;
     width: 100%;
     max-width: 780px;
-    height: 96vh;
+    flex: 1;
+    min-height: 0;
     max-height: 920px;
     display: flex;
     flex-direction: column;

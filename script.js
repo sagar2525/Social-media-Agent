@@ -28,20 +28,6 @@ const lightboxImg = document.getElementById('lightboxImg');
 const lightboxClose = document.getElementById('lightboxClose');
 const dropOverlay = document.getElementById('dropOverlay');
 
-// Direct Post refs
-const directPostToggle = document.getElementById('directPostToggle');
-const directPostOverlay = document.getElementById('directPostOverlay');
-const directPostClose = document.getElementById('directPostClose');
-const dpLinkedin = document.getElementById('dpLinkedin');
-const dpX = document.getElementById('dpX');
-const dpInstagram = document.getElementById('dpInstagram');
-const dpXCharCount = document.getElementById('dpXCharCount');
-const dpCopyAll = document.getElementById('dpCopyAll');
-const dpFileInput = document.getElementById('dpFileInput');
-const dpAttachBtn = document.getElementById('dpAttachBtn');
-const dpImgCount = document.getElementById('dpImgCount');
-const dpPreview = document.getElementById('dpPreview');
-const dpPublishBtn = document.getElementById('dpPublishBtn');
 
 // Preview Modal refs
 const previewOverlay = document.getElementById('previewOverlay');
@@ -64,10 +50,9 @@ const SESSION_ID = (() => {
 let attachedImages = [];
 let latestBotResponse = '';
 let sessionImages = [];
-let dpImages = [];
 let pendingPublish = null;
 let socialLinks = {};  // Loaded from data.json
-let selectedPlatforms = ['linkedin', 'x', 'instagram']; // Active platforms
+let selectedPlatforms = ['x']; // Active platforms
 
 // ========================================
 // Credit System — 3 posts per browser session
@@ -82,9 +67,6 @@ Object.defineProperty(window, 'devMode', {
             // Unfreeze everything
             confirmPostBtn.disabled = false;
             confirmPostBtn.classList.remove('frozen');
-            dpPublishBtn.disabled = false;
-            directPostToggle.disabled = false;
-            directPostToggle.classList.remove('frozen');
             setStatus('Online • Dev Mode ∞');
         }
         updateCreditBadge();
@@ -114,9 +96,6 @@ function updateCreditBadge() {
 function freezePublishing() {
     // Disable all publish-related buttons
     confirmPostBtn.disabled = true;
-    dpPublishBtn.disabled = true;
-    directPostToggle.disabled = true;
-    directPostToggle.classList.add('frozen');
     confirmPostBtn.classList.add('frozen');
     setStatus('Credits exhausted • Posting disabled');
     showToast('⚠️ You\'ve used all 3 post credits for this session.', 'warning');
@@ -180,36 +159,12 @@ function setupEventListeners() {
     // Clipboard paste
     document.addEventListener('paste', handlePaste);
 
-    // Direct Post panel
-    directPostToggle.addEventListener('click', openDirectPost);
-    directPostClose.addEventListener('click', closeDirectPost);
-    directPostOverlay.addEventListener('click', (e) => { if (e.target === directPostOverlay) closeDirectPost(); });
-    dpAttachBtn.addEventListener('click', () => dpFileInput.click());
-    dpFileInput.addEventListener('change', handleDpImageAttach);
-    dpPublishBtn.addEventListener('click', handleDirectPublish);
-
-    // Direct Post 3-field listeners
-    [dpLinkedin, dpX, dpInstagram].forEach(ta => {
-        ta.addEventListener('input', () => { updateDpPublishBtn(); updateDpCopyAllBtn(); });
-    });
-    dpX.addEventListener('input', () => {
-        dpXCharCount.textContent = `${dpX.value.length} / 260`;
-        dpXCharCount.classList.toggle('over-limit', dpX.value.length >= 250);
-    });
-    dpCopyAll.addEventListener('click', dpCopyToAll);
 
     // Platform pills
     document.querySelectorAll('.platform-pill').forEach(pill => {
         pill.addEventListener('click', () => togglePlatform(pill.dataset.platform));
     });
 
-    // Direct Post toggle switches
-    document.querySelectorAll('.dp-toggle-input').forEach(toggle => {
-        toggle.addEventListener('change', (e) => {
-            e.stopPropagation();
-            togglePlatform(toggle.dataset.platform);
-        });
-    });
 
     // Preview Modal
     previewClose.addEventListener('click', closePreview);
@@ -221,7 +176,7 @@ function setupEventListeners() {
 
     // Escape key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') { closeLightbox(); closeDirectPost(); closePreview(); }
+        if (e.key === 'Escape') { closeLightbox(); closePreview(); }
     });
 
     // Quick prompts
@@ -373,6 +328,11 @@ async function handleSend() {
     const text = messageInput.value.trim();
     if ((!text && attachedImages.length === 0) || isWaiting) return;
 
+    if (latestBotResponse) {
+        showToast('⚠️ Please confirm and publish your pending post first, or click Clear Chat.', 'warning');
+        return;
+    }
+
     if (welcomeScreen) welcomeScreen.style.display = 'none';
 
     const imageDataUrls = attachedImages.map((img) => img.dataUrl);
@@ -465,63 +425,6 @@ function showConfirmButton() { confirmPostBtn.style.display = 'flex'; setTimeout
 function hideConfirmButton() { confirmPostBtn.classList.remove('visible'); setTimeout(() => { confirmPostBtn.style.display = 'none'; }, 250); }
 
 // ========================================
-// Direct Post Panel — 3 platform fields
-// ========================================
-function openDirectPost() { directPostOverlay.classList.add('active'); syncDpFieldVisibility(); const firstVisible = selectedPlatforms[0]; if (firstVisible === 'linkedin') dpLinkedin.focus(); else if (firstVisible === 'x') dpX.focus(); else dpInstagram.focus(); }
-function closeDirectPost() { directPostOverlay.classList.remove('active'); }
-function resetDirectPost() {
-    dpLinkedin.value = ''; dpX.value = ''; dpInstagram.value = '';
-    dpXCharCount.textContent = '0 / 260';
-    dpImages = []; renderDpPreview(); updateDpPublishBtn(); dpPublishBtn.disabled = false;
-    dpCopyAll.style.display = 'none';
-}
-function updateDpPublishBtn() {
-    const anyFilled = selectedPlatforms.some(p => {
-        if (p === 'linkedin') return dpLinkedin.value.trim();
-        if (p === 'x') return dpX.value.trim();
-        if (p === 'instagram') return dpInstagram.value.trim();
-        return false;
-    });
-    dpPublishBtn.disabled = !anyFilled;
-}
-function updateDpCopyAllBtn() {
-    const anyFilled = selectedPlatforms.some(p => {
-        if (p === 'linkedin') return dpLinkedin.value.trim();
-        if (p === 'x') return dpX.value.trim();
-        if (p === 'instagram') return dpInstagram.value.trim();
-        return false;
-    });
-    dpCopyAll.style.display = (anyFilled && selectedPlatforms.length > 1) ? 'flex' : 'none';
-}
-
-function dpCopyToAll() {
-    let source = '';
-    for (const p of selectedPlatforms) {
-        if (p === 'linkedin' && dpLinkedin.value.trim()) { source = dpLinkedin.value.trim(); break; }
-        if (p === 'x' && dpX.value.trim()) { source = dpX.value.trim(); break; }
-        if (p === 'instagram' && dpInstagram.value.trim()) { source = dpInstagram.value.trim(); break; }
-    }
-    if (!source) return;
-    if (selectedPlatforms.includes('linkedin')) dpLinkedin.value = source;
-    if (selectedPlatforms.includes('instagram')) dpInstagram.value = source;
-    if (selectedPlatforms.includes('x')) {
-        dpX.value = source.substring(0, 260);
-        dpXCharCount.textContent = `${dpX.value.length} / 260`;
-        dpXCharCount.classList.toggle('over-limit', dpX.value.length >= 250);
-    }
-    updateDpPublishBtn();
-    showToast('Copied to all fields' + (source.length > 260 && selectedPlatforms.includes('x') ? ' (X trimmed to 260 chars)' : ''), 'info');
-}
-
-function buildCombinedText() {
-    const parts = [];
-    if (selectedPlatforms.includes('linkedin') && dpLinkedin.value.trim()) parts.push('LinkedIn:\n' + dpLinkedin.value.trim());
-    if (selectedPlatforms.includes('x') && dpX.value.trim()) parts.push('X:\n' + dpX.value.trim());
-    if (selectedPlatforms.includes('instagram') && dpInstagram.value.trim()) parts.push('Instagram:\n' + dpInstagram.value.trim());
-    return parts.join('\n\n/n/n\n\n');
-}
-
-// ========================================
 // Platform Selection
 // ========================================
 function togglePlatform(platform) {
@@ -539,111 +442,6 @@ function togglePlatform(platform) {
     document.querySelectorAll('.platform-pill').forEach(pill => {
         pill.classList.toggle('active', selectedPlatforms.includes(pill.dataset.platform));
     });
-    syncDpFieldVisibility();
-    updateDpPublishBtn();
-    updateDpCopyAllBtn();
-}
-
-function syncDpFieldVisibility() {
-    document.querySelectorAll('.dp-field[data-platform]').forEach(field => {
-        const p = field.dataset.platform;
-        const isActive = selectedPlatforms.includes(p);
-        const textarea = field.querySelector('textarea');
-        if (textarea) {
-            textarea.disabled = !isActive;
-            textarea.style.opacity = isActive ? '1' : '0.3';
-        }
-        field.style.opacity = isActive ? '1' : '0.5';
-    });
-    // Sync DP toggle checkboxes
-    document.querySelectorAll('.dp-toggle-input').forEach(toggle => {
-        toggle.checked = selectedPlatforms.includes(toggle.dataset.platform);
-    });
-}
-
-async function handleDpImageAttach(e) { await addDpImagesToAttachment(Array.from(e.target.files)); dpFileInput.value = ''; }
-
-async function addDpImagesToAttachment(files) {
-    for (const file of files) {
-        if (!file.type.startsWith('image/')) continue;
-        if (dpImages.length >= 10) { showToast('Maximum 10 images', 'warning'); break; }
-        const dataUrl = await new Promise((r) => { const rd = new FileReader(); rd.onload = (e) => r(e.target.result); rd.readAsDataURL(file); });
-        const compressed = await compressImage(dataUrl);
-        dpImages.push({ dataUrl: compressed, name: file.name || `pasted_${Date.now()}.jpg`, type: 'image/jpeg' });
-    }
-    renderDpPreview();
-}
-
-function removeDpImage(index) { dpImages.splice(index, 1); renderDpPreview(); }
-
-function renderDpPreview() {
-    dpImgCount.textContent = dpImages.length > 0 ? `${dpImages.length} image${dpImages.length > 1 ? 's' : ''}` : '';
-    dpPreview.innerHTML = dpImages.map((img, i) => `
-        <div class="preview-thumb" onclick="openLightbox('${img.dataUrl.replace(/'/g, "\\'")}')"><img src="${img.dataUrl}" alt="${escapeHTML(img.name)}"><button class="preview-remove" onclick="event.stopPropagation(); removeDpImage(${i})" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    `).join('');
-}
-
-// Direct Post → Preview → Publish
-function handleDirectPublish() {
-    // Check that all SELECTED platform fields are filled
-    const missing = [];
-    if (selectedPlatforms.includes('linkedin') && !dpLinkedin.value.trim()) missing.push('LinkedIn');
-    if (selectedPlatforms.includes('x') && !dpX.value.trim()) missing.push('X');
-    if (selectedPlatforms.includes('instagram') && !dpInstagram.value.trim()) missing.push('Instagram');
-
-    const anyFilled = selectedPlatforms.some(p => {
-        if (p === 'linkedin') return dpLinkedin.value.trim();
-        if (p === 'x') return dpX.value.trim();
-        if (p === 'instagram') return dpInstagram.value.trim();
-        return false;
-    });
-    if (!anyFilled) return;
-
-    // If some selected fields are empty, auto-copy and ask to review
-    if (missing.length > 0 && missing.length < selectedPlatforms.length) {
-        dpCopyToAll();
-        showToast(`Filled empty fields: ${missing.join(', ')}. Review & publish again.`, 'info');
-        return;
-    }
-
-    const combined = buildCombinedText();
-    if (!combined) return;
-    if (!checkCredits()) return;
-    showPublishPreview(combined, dpImages, doDirectPublish);
-}
-
-async function doDirectPublish() {
-    closePreview();
-    const combined = buildCombinedText();
-    dpPublishBtn.disabled = true;
-    const origHTML = dpPublishBtn.innerHTML;
-    dpPublishBtn.innerHTML = '<div class="btn-spinner"></div> Publishing…';
-
-    try {
-        const payload = { text: combined, sessionId: SESSION_ID, platforms: selectedPlatforms };
-        if (dpImages.length > 0) {
-            payload.images = dpImages.map((img) => ({ name: img.name, type: img.type, base64: img.dataUrl.split(',')[1] }));
-        }
-        const response = await fetch(CONFIRM_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!response.ok) throw new Error(`Server responded with ${response.status}`);
-        await response.json();
-
-        closeDirectPost(); resetDirectPost();
-        if (welcomeScreen) welcomeScreen.style.display = 'none';
-        addMessage('[Direct Post] ' + combined.substring(0, 100) + '...', 'user');
-        saveToHistory({ role: 'user', text: '[Direct Post]', time: getTimeString() });
-        const successMsg = getSocialLinksMessage();
-        addBotBubbles(successMsg);
-        saveToHistory({ role: 'bot', text: successMsg, time: getTimeString() });
-        showToast('Post published successfully! 🎉', 'success');
-        useCredit();
-    } catch (err) {
-        showToast('Failed to publish. Please try again.', 'error');
-        console.error('Direct post error:', err);
-        dpPublishBtn.disabled = false;
-    } finally {
-        dpPublishBtn.innerHTML = origHTML;
-    }
 }
 
 // ========================================
