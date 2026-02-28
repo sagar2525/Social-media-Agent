@@ -56,10 +56,13 @@ body {
 .app {
     position: relative;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 20px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 20px;
 }
 
 .bg-gradient {
@@ -129,6 +132,80 @@ body {
     66% {
         transform: translate(-15px, 15px) scale(0.97);
     }
+}
+
+/* ========================================
+   Brand Header
+   ======================================== */
+.brand-header {
+    z-index: 2;
+    text-align: center;
+    margin-bottom: 10px;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.brand-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+}
+
+.brand-highlight {
+    color: #3b82f6;
+    /* Bright blue for "Big Ideas." */
+}
+
+.brand-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.brand-socials {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.brand-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #fff;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    text-decoration: none;
+}
+
+.brand-social-link:hover {
+    transform: translateY(-2px);
+    opacity: 0.85;
+}
+
+.brand-social-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+.brand-x {
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.brand-ln {
+    background: #0077b5;
+}
+
+.brand-dc {
+    background: #5865F2;
+}
+
+.brand-yt {
+    background: #FF0000;
 }
 
 /* ========================================
