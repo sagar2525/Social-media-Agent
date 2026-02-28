@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Social Post Creator — Powered by n8n</title>
+    <meta name="description"
+        content="Create high-converting social media posts with AI. Attach images, refine content, and publish.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app">
+        <div class="bg-gradient"></div>
+        <div class="bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+
+        <div class="chat-container">
+            <header class="chat-header">
+                <div class="header-left">
+                    <div class="bot-avatar">
+                        <img src="logo.png" alt="Small Group" class="bot-logo">
+                        <span class="status-dot"></span>
+                    </div>
+                    <div class="header-info">
+                        <h1>AI Post Creator</h1>
+                        <span class="status-text" id="statusText">Online • Ready to create</span>
+                    </div>
+                </div>
+                <span class="credit-badge" id="creditBadge">3 posts left</span>
+                <div class="header-right">
+                    <button class="confirm-post-btn" id="confirmPostBtn" style="display:none;"
+                        title="Confirm and publish">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14"
+                            height="14">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Confirm Post</span>
+                    </button>
+                    <button class="direct-post-toggle" id="directPostToggle" title="Write & post directly">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"
+                            height="15">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                        </svg>
+                        <span>Direct Post</span>
+                    </button>
+                    <button class="btn-icon" id="clearChat" title="New conversation">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">
+                        <img src="logo.png" alt="Small Group" class="welcome-logo">
+                    </div>
+                    <h2>Create Your Social Media Post</h2>
+                    <p>Describe your idea, attach reference images, and I'll craft a high-converting post. Iterate until
+                        it's perfect, then publish!</p>
+                    <div class="quick-prompts">
+                        <button class="quick-prompt"
+                            data-prompt="Create a LinkedIn post about AI automation for business">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                height="14">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg> LinkedIn post about AI
+                        </button>
+                        <button class="quick-prompt" data-prompt="Write a Twitter thread about lead generation tips">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                height="14">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a7.72 7.72 0 0 0 2-3.5z" />
+                            </svg> Twitter thread on leads
+                        </button>
+                        <button class="quick-prompt" data-prompt="What can you help me with?">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                height="14">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg> What can you do?
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-preview-strip" id="imagePreviewStrip" style="display:none;">
+                <div class="preview-header">
+                    <span class="preview-label" id="previewLabel">0 images selected</span>
+                    <button class="preview-clear" id="clearAllImages" title="Remove all">Clear all</button>
+                </div>
+                <div class="preview-scroll" id="previewScroll"></div>
+            </div>
+
+            <div class="drop-overlay" id="dropOverlay">
+                <div class="drop-content">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="48"
+                        height="48">
+                        <rect x="6" y="6" width="36" height="36" rx="4" />
+                        <circle cx="16" cy="16" r="3" />
+                        <polyline points="42 30 32 20 10 42" />
+                    </svg>
+                    <span>Drop images here</span>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="platform-pills" id="platformPills">
+                    <span class="pills-label">Select platform where you want to post:</span>
+                    <button class="platform-pill active" data-platform="linkedin">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                            <path
+                                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                        </svg>
+                        LinkedIn
+                    </button>
+                    <button class="platform-pill active" data-platform="x">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11">
+                            <path
+                                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                        </svg>
+                        X
+                    </button>
+                    <button class="platform-pill active" data-platform="instagram">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+                        </svg>
+                        Instagram
+                    </button>
+                </div>
+                <div class="input-container">
+                    <input type="file" id="imageFileInput" multiple accept="image/*" style="display:none;">
+                    <button class="attach-btn" id="attachBtn" title="Attach images">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                    </button>
+                    <textarea id="messageInput" placeholder="Describe your post idea..." rows="1"
+                        maxlength="4000"></textarea>
+                    <button class="send-btn" id="sendBtn" disabled title="Send message">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                    </button>
+                </div>
+                <span class="input-hint">Enter to send • Shift+Enter new line • Drag & drop or 📎 to attach
+                    images</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Direct Post Panel -->
+    <div class="modal-overlay" id="directPostOverlay">
+        <div class="modal-panel dp-panel">
+            <div class="modal-header">
+                <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg> Direct Post</h3>
+                <div class="modal-header-actions">
+                    <button class="dp-copy-all" id="dpCopyAll" style="display:none;"
+                        title="Copy first caption to all fields">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12"
+                            height="12">
+                            <rect x="9" y="9" width="13" height="13" rx="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy to all
+                    </button>
+                    <button class="modal-close" id="directPostClose">×</button>
+                </div>
+            </div>
+            <div class="modal-body dp-body-scroll">
+                <!-- Images at top for visibility -->
+                <div class="dp-field">
+                    <label class="dp-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            width="14" height="14">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg> Common Images (optional)</label>
+                    <div class="dp-images-row">
+                        <input type="file" id="dpFileInput" multiple accept="image/*" style="display:none;">
+                        <button class="dp-attach" id="dpAttachBtn"><svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg> Add Images</button>
+                        <span class="dp-img-count" id="dpImgCount"></span>
+                    </div>
+                    <div class="dp-preview" id="dpPreview"></div>
+                </div>
+
+                <!-- Platform caption fields with toggles -->
+                <div class="dp-field" data-platform="linkedin">
+                    <label class="dp-label">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                            <path
+                                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                        </svg>
+                        LinkedIn
+                        <label class="dp-toggle"><input type="checkbox" class="dp-toggle-input" data-platform="linkedin"
+                                checked><span class="dp-toggle-slider"></span></label>
+                    </label>
+                    <textarea id="dpLinkedin" placeholder="Write your LinkedIn caption..." rows="4"
+                        maxlength="6000"></textarea>
+                </div>
+                <div class="dp-field" data-platform="x">
+                    <label class="dp-label">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+                            <path
+                                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                        </svg>
+                        X (Twitter) <span class="dp-char-count" id="dpXCharCount">0 / 260</span>
+                        <label class="dp-toggle"><input type="checkbox" class="dp-toggle-input" data-platform="x"
+                                checked><span class="dp-toggle-slider"></span></label>
+                    </label>
+                    <textarea id="dpX" placeholder="Write your X caption (max 260 chars)..." rows="3"
+                        maxlength="260"></textarea>
+                </div>
+                <div class="dp-field" data-platform="instagram">
+                    <label class="dp-label">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+                        </svg>
+                        Instagram
+                        <label class="dp-toggle"><input type="checkbox" class="dp-toggle-input"
+                                data-platform="instagram" checked><span class="dp-toggle-slider"></span></label>
+                    </label>
+                    <textarea id="dpInstagram" placeholder="Write your Instagram caption..." rows="4"
+                        maxlength="6000"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="modal-hint">Captions are combined per platform and published</span>
+                <button class="btn-publish" id="dpPublishBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg> Publish Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publish Preview Modal -->
+    <div class="modal-overlay" id="previewOverlay">
+        <div class="modal-panel preview-panel">
+            <div class="modal-header">
+                <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg> Preview Before Publishing</h3>
+                <button class="modal-close" id="previewClose">×</button>
+            </div>
+            <div class="modal-body preview-body">
+                <div class="preview-content-card" id="previewContentCard">
+                    <div class="preview-text" id="previewText"></div>
+                    <div class="preview-images" id="previewImages"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="previewCancelBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg> Cancel
+                </button>
+                <button class="btn-publish" id="previewConfirmBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg> Confirm & Publish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox"><button class="lightbox-close" id="lightboxClose">×</button><img
+            id="lightboxImg" src="" alt="Full size image"></div>
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
